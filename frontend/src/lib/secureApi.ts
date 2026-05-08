@@ -1449,11 +1449,13 @@ export class SecureAPIClient {
   }
 
   // ============= DASHBOARD API =============
-  /**
-   * Get dashboard summary with optional simulation header
-   */
-  async getDashboardSummary(propertyId: string, options?: { simulatedTenant?: string, timestamp?: number }) {
+  async getDashboardSummary(
+    propertyId: string,
+    options?: { simulatedTenant?: string; timestamp?: number }
+  ) {
     const queryParams = new URLSearchParams({ property_id: propertyId });
+    
+    // Add cache buster timestamp if provided
     if (options?.timestamp) {
       queryParams.append('_t', options.timestamp.toString());
     }
@@ -1465,7 +1467,26 @@ export class SecureAPIClient {
       };
     }
 
-    return this.request<any>(`/api/v1/dashboard/summary?${queryParams}`, requestOptions);
+    return this.request<any>(
+      `/api/v1/dashboard/summary?${queryParams}`,
+      requestOptions
+    );
+  }
+
+
+  async getDashboardProperties(options?: { simulatedTenant?: string }) {
+    const requestOptions: RequestInit = {};
+    
+    if (options?.simulatedTenant) {
+      requestOptions.headers = {
+        'X-Simulated-Tenant': options.simulatedTenant
+      };
+    }
+
+    return this.request<any>(
+      '/api/v1/dashboard/properties',
+      requestOptions
+    );
   }
 
   async uploadCompanyLogo(logo_url: string) {
